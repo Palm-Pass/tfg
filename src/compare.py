@@ -12,6 +12,7 @@ timings = {
 # Import required modules
 import sys
 import os
+sys.path.append("/usr/lib/howdy")
 import json
 import configparser
 import dlib
@@ -25,6 +26,12 @@ import _thread as thread
 import paths_factory
 from recorders.video_capture import VideoCapture
 from i18n import _
+import syslog
+
+def print_msg(message: str):
+	syslog.syslog(syslog.LOG_INFO,f'TFG-LOG: {message}')
+
+print_msg("Message from TFG Project")
 
 def exit(code=None):
 	"""Exit while closing howdy-gtk properly"""
