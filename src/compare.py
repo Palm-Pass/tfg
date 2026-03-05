@@ -33,6 +33,8 @@ def print_msg(message: str):
 
 print_msg("Message from TFG Project")
 
+print_msg("Loaded uv libraries correctly")
+
 def exit(code=None):
 	"""Exit while closing howdy-gtk properly"""
 	global gtk_proc
@@ -227,6 +229,9 @@ while True:
 	# Increment the frame count every loop
 	frames += 1
 
+	if frames % 10 == 0:
+		print_msg(f"Tried {frames} frames")
+
 	# Form a string to let the user know we're real busy
 	ui_subtext = "Scanned " + str(valid_frames - dark_tries) + " frames"
 	if (dark_tries > 1):
@@ -239,6 +244,8 @@ while True:
 		# Create a timeout snapshot if enabled
 		if save_failed:
 			make_snapshot(_("FAILED"))
+
+		print_msg("Failed due to timeout")
 
 		if dark_tries == valid_frames:
 			print(_("All frames were too dark, please check dark_threshold in config"))
@@ -329,6 +336,7 @@ while True:
 
 		# Check if a match that's confident enough
 		if 0 < match < video_certainty:
+			print_msg("Checking if face is a match")
 			timings["tt"] = time.time() - timings["st"]
 			timings["fl"] = time.time() - timings["fr"]
 
