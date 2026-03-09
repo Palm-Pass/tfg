@@ -1,4 +1,5 @@
 src/__pycache__/*
 .venv
 
-
+notebooks/rps_data_sample
+notebooks/rps_data_sample.zip
