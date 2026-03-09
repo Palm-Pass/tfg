@@ -9,4 +9,5 @@ dependencies = [
     "mediapipe>=0.10.21",
     "mediapipe-model-maker>=0.2.1.4",
     "opencv-python>=4.11.0.86",
+    "setuptools>=65.0.0,<72.0.0",
 ]
