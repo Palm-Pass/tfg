@@ -2,6 +2,7 @@
 # Running in a local python instance to get around PATH issues
 
 # Import time so we can start timing asap
+from random import random
 import time
 
 # Import required modules
@@ -22,8 +23,10 @@ import paths_factory
 from recorders.video_capture import VideoCapture
 from i18n import _
 import syslog
+import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
+import random as rnd
 
 def print_msg(message: str):
     """Log message to syslog"""
@@ -92,11 +95,14 @@ class Authenticator:
         # UI process
         self.gtk_proc = None
         
+    def gesture_recognition_init(self):
         base_options = python.BaseOptions(model_asset_path='notebooks/rock_exported_model/gesture_recognizer.task')
         options = vision.GestureRecognizerOptions(base_options=base_options)
         self.recognizer = vision.GestureRecognizer.create_from_options(options)
-
-
+        self.gesture_names = ["rock", "paper", "scissors"]
+        self.target_gesture = rnd.choice(self.gesture_names)
+        print_msg(f"Target gesture: {self.target_gesture}")
+        
     
     def send_to_ui(self, msg_type, message):
         """Send message to the auth ui"""
@@ -409,6 +415,20 @@ class Authenticator:
                 "clahe": self.clahe,
             },
         )
+    def _process_gesture(self, frame):
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
+    
+	
+        recognition_result = self.recognizer.recognize(mp_image)
+	
+        detected_gesture = None
+        if recognition_result.gestures:
+            # Cogemos el gesto con más confianza
+            detected_gesture = recognition_result.gestures[0][0].category_name
+            print_msg(f"Detected gesture: {detected_gesture}")
+        return detected_gesture == self.target_gesture
+
 
     def authenticate(self):
         """Main authentication loop"""
@@ -418,6 +438,7 @@ class Authenticator:
 
         # Start the read loop
         self.timings["fr"] = time.time()
+        self.send_to_ui("M", f"The target gesture is: {self.target_gesture}.")
 
         while True:
             # Increment the frame count every loop
@@ -474,9 +495,14 @@ class Authenticator:
             # Detect and match faces
             match_found, match, match_index = self.detect_and_match_faces(frame, gsframe)
             
-            if match_found:
+            gesture_ok = self._process_gesture(frame)
+
+            if match_found and gesture_ok:
                 print_msg(f"Face match found! Certainty: {match:.3f}, Model index: {match_index}")
                 self.handle_successful_authentication(match, match_index)
+
+            if not gesture_ok:
+                print_msg("Gesture did not match the target gesture.")
 
             # Set manual exposure if configured
             if self.exposure != -1:
@@ -497,6 +523,8 @@ class Authenticator:
 
         # Load face models
         self.load_models()
+
+        self.gesture_recognition_init()
 
         # Import face recognition, takes some time
         self.timings["ll"] = time.time()
