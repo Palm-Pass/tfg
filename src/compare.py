@@ -22,7 +22,8 @@ import paths_factory
 from recorders.video_capture import VideoCapture
 from i18n import _
 import syslog
-
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
 
 def print_msg(message: str):
     """Log message to syslog"""
@@ -90,7 +91,13 @@ class Authenticator:
         
         # UI process
         self.gtk_proc = None
+        
+        base_options = python.BaseOptions(model_asset_path='notebooks/rock_exported_model/gesture_recognizer.task')
+        options = vision.GestureRecognizerOptions(base_options=base_options)
+        self.recognizer = vision.GestureRecognizer.create_from_options(options)
 
+
+    
     def send_to_ui(self, msg_type, message):
         """Send message to the auth ui"""
         # Only execute if the process started
@@ -187,7 +194,12 @@ class Authenticator:
 
         # Send the gtk output to the terminal if enabled in the config
         gtk_pipe = sys.stdout if self.gtk_stdout else subprocess.DEVNULL
-
+        
+		#TODO: Set ui when using sudo or login, at the moment does not pop up
+        env = os.environ.copy()
+        env["DISPLAY"] = ":0"  
+        env["XAUTHORITY"] = f"/home/{os.getlogin()}/.Xauthority"
+        # Ensure the GTK UI can find the display
         # Start the auth ui, register it to be always be closed on exit
         try:
             self.gtk_proc = subprocess.Popen(
@@ -195,6 +207,7 @@ class Authenticator:
                 stdin=subprocess.PIPE,
                 stdout=gtk_pipe,
                 stderr=gtk_pipe,
+                env=env
             )
             atexit.register(self.cleanup)
         except FileNotFoundError:
