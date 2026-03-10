@@ -331,7 +331,7 @@ class Authenticator:
 
     def handle_successful_authentication(self, match, match_index):
         """Handle successful authentication with reporting and cleanup"""
-        print_msg("Checking if face is a match")
+        print_msg("Handling successful authentication")
         self.timings["tt"] = time.time() - self.timings["st"]
         self.timings["fl"] = time.time() - self.timings["fr"]
 
@@ -509,5 +509,6 @@ class Authenticator:
             self.gtk_proc.terminate()
         
 if __name__ == "__main__":
+    print_msg("Starting compare.py")
     authenticator = Authenticator()
     authenticator.run()
