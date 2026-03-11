@@ -1,3 +1,5 @@
+#!/home/carlos/Escritorio/tfg/.venv/bin/python
+
 # Compare incoming video with known faces  
 # Running in a local python instance to get around PATH issues
 
@@ -8,6 +10,10 @@ import time
 # Import required modules
 import sys
 import os
+
+def print_msg(message: str):
+    """Log message to syslog"""
+    syslog.syslog(syslog.LOG_INFO, f"TFG-LOG: {message}")
 
 sys.path.append("/usr/lib/howdy")
 import json
@@ -23,14 +29,18 @@ import paths_factory
 from recorders.video_capture import VideoCapture
 from i18n import _
 import syslog
-import mediapipe as mp
-from mediapipe.tasks import python
-from mediapipe.tasks.python import vision
-import random as rnd
+try:
+    import mediapipe as mp
+    from mediapipe.tasks import python
+    from mediapipe.tasks.python import vision
+    import random as rnd
+except ImportError as e:
+    print_msg(f"ERROR: Error loading mediapipe: {e}")
 
-def print_msg(message: str):
-    """Log message to syslog"""
-    syslog.syslog(syslog.LOG_INFO, f"TFG-LOG: {message}")
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+
+
 
 
 def exit(code=None):
@@ -96,7 +106,7 @@ class Authenticator:
         self.gtk_proc = None
         
     def gesture_recognition_init(self):
-        base_options = python.BaseOptions(model_asset_path='notebooks/rock_exported_model/gesture_recognizer.task')
+        base_options = python.BaseOptions(model_asset_path='/home/carlos/Escritorio/tfg/notebooks/rock_exported_model/gesture_recognizer.task')
         options = vision.GestureRecognizerOptions(base_options=base_options)
         self.recognizer = vision.GestureRecognizer.create_from_options(options)
         self.gesture_names = ["rock", "paper", "scissors"]
@@ -431,6 +441,7 @@ class Authenticator:
 
 
     def authenticate(self):
+        #TODO: Clear the warnings from terminal when running the script
         """Main authentication loop"""
         print_msg("Starting main authentication loop")
         # Let the ui know that we're ready
@@ -439,6 +450,8 @@ class Authenticator:
         # Start the read loop
         self.timings["fr"] = time.time()
         self.send_to_ui("M", f"The target gesture is: {self.target_gesture}.")
+        print_msg(f"The target gesture is: {self.target_gesture}.")
+        time.sleep(5)
 
         while True:
             # Increment the frame count every loop
