@@ -110,7 +110,6 @@ class Authenticator:
         options = vision.GestureRecognizerOptions(base_options=base_options)
         self.recognizer = vision.GestureRecognizer.create_from_options(options)
         self.gesture_names = ["rock", "paper", "scissors"]
-        self.target_gesture = rnd.choice(self.gesture_names)
         print_msg(f"Target gesture: {self.target_gesture}")
         
     
@@ -194,6 +193,7 @@ class Authenticator:
         config = configparser.ConfigParser()
         config.read(paths_factory.config_file_path())
         print_msg("Configuration loaded successfully")
+        #TODO: Add gesture certainty to make it more robust
 
         # Get all config values needed
         self.use_cnn = config.getboolean("core", "use_cnn", fallback=False)
@@ -207,7 +207,7 @@ class Authenticator:
         self.rotate = config.getint("video", "rotate", fallback=0)
         self.exposure = config.getint("video", "exposure", fallback=-1)
         self.max_height = config.getfloat("video", "max_height", fallback=320.0)
-
+        self.target_gesture = config.get("video", "target_gesture", fallback="rock")
         # Send the gtk output to the terminal if enabled in the config
         gtk_pipe = sys.stdout if self.gtk_stdout else subprocess.DEVNULL
         
