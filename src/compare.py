@@ -11,6 +11,54 @@ import time
 import sys
 import os
 
+# SUPPRESS STDERR/STDOUT IMMEDIATELY at the file descriptor level
+# This catches C++ library warnings that are written before Python imports complete
+devnull = os.open(os.devnull, os.O_WRONLY)
+os.dup2(devnull, 2)  # Redirect fd 2 (stderr) to /dev/null
+os.dup2(devnull, 1)  # Redirect fd 1 (stdout) to /dev/null
+
+# Configure environment variables BEFORE importing heavy libraries
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress TensorFlow C++ logs
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'  # Disable oneDNN optimization warnings
+os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'  # Force CPU only (no GPU warnings)
+os.environ['TF_CPP_MIN_VLOG_LEVEL'] = '3'
+os.environ['ABSL_MIN_LOG_LEVEL'] = '3'  # Suppress ABSL warnings
+
+def silence_warnings():
+    """Suppress various warnings from libraries like TensorFlow, MediaPipe, etc."""
+    import warnings
+    import logging
+    
+    # Suppress all Python warnings
+    warnings.filterwarnings('ignore')
+    warnings.simplefilter('ignore', FutureWarning)
+    warnings.simplefilter('ignore', DeprecationWarning)
+    warnings.simplefilter('ignore', PendingDeprecationWarning)
+    
+    # Configure logging to suppress library warnings
+    logging.getLogger('tensorflow').setLevel(logging.ERROR)
+    logging.getLogger('keras').setLevel(logging.ERROR)
+    logging.getLogger('mediapipe').setLevel(logging.ERROR)
+    logging.getLogger('protobuf').setLevel(logging.ERROR)
+    logging.getLogger('absl').setLevel(logging.ERROR)
+    logging.getLogger('google').setLevel(logging.CRITICAL)
+    logging.getLogger('google.api_core').setLevel(logging.CRITICAL)
+    
+    # Restore stderr and stdout for Python logging (important!)
+    sys.stderr = os.fdopen(os.dup(2), 'w')
+    sys.stdout = os.fdopen(os.dup(1), 'w')
+    
+    # Try to suppress TensorFlow specifically if available
+    try:
+        import tensorflow as tf
+        tf.get_logger().setLevel(logging.ERROR)
+    except ImportError:
+        pass
+
+# Call silence_warnings BEFORE any heavy imports
+silence_warnings()
+
 def print_msg(message: str):
     """Log message to syslog"""
     syslog.syslog(syslog.LOG_INFO, f"TFG-LOG: {message}")
@@ -21,6 +69,7 @@ import configparser
 import dlib
 import cv2
 from datetime import timezone, datetime
+import warnings
 import atexit
 import subprocess
 import snapshot
@@ -37,12 +86,8 @@ try:
 except ImportError as e:
     print_msg(f"ERROR: Error loading mediapipe: {e}")
 
-import warnings
-warnings.filterwarnings("ignore", category=FutureWarning)
 
-
-
-
+s
 def exit(code=None):
     """Exit while closing howdy-gtk properly"""
     # Exit compare
@@ -441,7 +486,6 @@ class Authenticator:
 
 
     def authenticate(self):
-        #TODO: Clear the warnings from terminal when running the script
         """Main authentication loop"""
         print_msg("Starting main authentication loop")
         # Let the ui know that we're ready
