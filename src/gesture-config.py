@@ -3,7 +3,7 @@ import configparser
 import os
 
 #TODO: Add command to howdy and check security permissions for config file before writing to it.
-CONFIG_PATH = "/lib/security/howdy/config.ini" 
+CONFIG_PATH = "/etc/howdy/config.ini" 
 
 VALID_GESTURES = ["None", "Rock", "Paper", "Scissors"]
 
