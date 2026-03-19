@@ -1,12 +1,19 @@
+#!/home/carlos/Escritorio/tfg/.venv/bin/python
+
 # Compare incoming video with known faces  
 # Running in a local python instance to get around PATH issues
 
 # Import time so we can start timing asap
+from random import random
 import time
 
 # Import required modules
 import sys
 import os
+
+def print_msg(message: str):
+    """Log message to syslog"""
+    syslog.syslog(syslog.LOG_INFO, f"TFG-LOG: {message}")
 
 sys.path.append("/usr/lib/howdy")
 import json
@@ -22,11 +29,18 @@ import paths_factory
 from recorders.video_capture import VideoCapture
 from i18n import _
 import syslog
+try:
+    import mediapipe as mp
+    from mediapipe.tasks import python
+    from mediapipe.tasks.python import vision
+    import random as rnd
+except ImportError as e:
+    print_msg(f"ERROR: Error loading mediapipe: {e}")
+
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 
-def print_msg(message: str):
-    """Log message to syslog"""
-    syslog.syslog(syslog.LOG_INFO, f"TFG-LOG: {message}")
 
 
 def exit(code=None):
@@ -90,7 +104,15 @@ class Authenticator:
         
         # UI process
         self.gtk_proc = None
-
+        
+    def gesture_recognition_init(self):
+        base_options = python.BaseOptions(model_asset_path='/home/carlos/Escritorio/tfg/notebooks/rock_exported_model/gesture_recognizer.task')
+        options = vision.GestureRecognizerOptions(base_options=base_options)
+        self.recognizer = vision.GestureRecognizer.create_from_options(options)
+        self.gesture_names = ["rock", "paper", "scissors"]
+        print_msg(f"Target gesture: {self.target_gesture}")
+        
+    
     def send_to_ui(self, msg_type, message):
         """Send message to the auth ui"""
         # Only execute if the process started
@@ -171,6 +193,7 @@ class Authenticator:
         config = configparser.ConfigParser()
         config.read(paths_factory.config_file_path())
         print_msg("Configuration loaded successfully")
+        #TODO: Add gesture certainty to make it more robust
 
         # Get all config values needed
         self.use_cnn = config.getboolean("core", "use_cnn", fallback=False)
@@ -184,10 +207,15 @@ class Authenticator:
         self.rotate = config.getint("video", "rotate", fallback=0)
         self.exposure = config.getint("video", "exposure", fallback=-1)
         self.max_height = config.getfloat("video", "max_height", fallback=320.0)
-
+        self.target_gesture = config.get("video", "target_gesture", fallback="rock")
         # Send the gtk output to the terminal if enabled in the config
         gtk_pipe = sys.stdout if self.gtk_stdout else subprocess.DEVNULL
-
+        
+		#TODO: Set ui when using sudo or login, at the moment does not pop up
+        env = os.environ.copy()
+        env["DISPLAY"] = ":0"  
+        env["XAUTHORITY"] = f"/home/{os.getlogin()}/.Xauthority"
+        # Ensure the GTK UI can find the display
         # Start the auth ui, register it to be always be closed on exit
         try:
             self.gtk_proc = subprocess.Popen(
@@ -195,6 +223,7 @@ class Authenticator:
                 stdin=subprocess.PIPE,
                 stdout=gtk_pipe,
                 stderr=gtk_pipe,
+                env=env
             )
             atexit.register(self.cleanup)
         except FileNotFoundError:
@@ -396,8 +425,23 @@ class Authenticator:
                 "clahe": self.clahe,
             },
         )
+    def _process_gesture(self, frame):
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
+    
+	
+        recognition_result = self.recognizer.recognize(mp_image)
+	
+        detected_gesture = None
+        if recognition_result.gestures:
+            # Cogemos el gesto con más confianza
+            detected_gesture = recognition_result.gestures[0][0].category_name
+            print_msg(f"Detected gesture: {detected_gesture}")
+        return detected_gesture == self.target_gesture
+
 
     def authenticate(self):
+        #TODO: Clear the warnings from terminal when running the script
         """Main authentication loop"""
         print_msg("Starting main authentication loop")
         # Let the ui know that we're ready
@@ -405,6 +449,9 @@ class Authenticator:
 
         # Start the read loop
         self.timings["fr"] = time.time()
+        self.send_to_ui("M", f"The target gesture is: {self.target_gesture}.")
+        print_msg(f"The target gesture is: {self.target_gesture}.")
+        time.sleep(5)
 
         while True:
             # Increment the frame count every loop
@@ -461,9 +508,14 @@ class Authenticator:
             # Detect and match faces
             match_found, match, match_index = self.detect_and_match_faces(frame, gsframe)
             
-            if match_found:
+            gesture_ok = self._process_gesture(frame)
+
+            if match_found and gesture_ok:
                 print_msg(f"Face match found! Certainty: {match:.3f}, Model index: {match_index}")
                 self.handle_successful_authentication(match, match_index)
+
+            if not gesture_ok:
+                print_msg("Gesture did not match the target gesture.")
 
             # Set manual exposure if configured
             if self.exposure != -1:
@@ -484,6 +536,8 @@ class Authenticator:
 
         # Load face models
         self.load_models()
+
+        self.gesture_recognition_init()
 
         # Import face recognition, takes some time
         self.timings["ll"] = time.time()
