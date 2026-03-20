@@ -10,6 +10,7 @@ import time
 # Import required modules
 import sys
 import os
+import syslog
 
 # SUPPRESS STDERR/STDOUT IMMEDIATELY at the file descriptor level
 # This catches C++ library warnings that are written before Python imports complete
@@ -59,6 +60,8 @@ def silence_warnings():
 # Call silence_warnings BEFORE any heavy imports
 silence_warnings()
 
+syslog.openlog(ident="TFG-LOG", logoption=syslog.LOG_PID, facility=syslog.LOG_USER)
+
 def print_msg(message: str):
     """Log message to syslog"""
     syslog.syslog(syslog.LOG_INFO, f"TFG-LOG: {message}")
@@ -77,7 +80,6 @@ import numpy as np
 import paths_factory
 from recorders.video_capture import VideoCapture
 from i18n import _
-import syslog
 try:
     import mediapipe as mp
     from mediapipe.tasks import python
@@ -87,7 +89,6 @@ except ImportError as e:
     print_msg(f"ERROR: Error loading mediapipe: {e}")
 
 
-s
 def exit(code=None):
     """Exit while closing howdy-gtk properly"""
     # Exit compare
@@ -238,7 +239,6 @@ class Authenticator:
         config = configparser.ConfigParser()
         config.read(paths_factory.config_file_path())
         print_msg("Configuration loaded successfully")
-        #TODO: Add gesture certainty to make it more robust
 
         # Get all config values needed
         self.use_cnn = config.getboolean("core", "use_cnn", fallback=False)
@@ -252,7 +252,7 @@ class Authenticator:
         self.rotate = config.getint("video", "rotate", fallback=0)
         self.exposure = config.getint("video", "exposure", fallback=-1)
         self.max_height = config.getfloat("video", "max_height", fallback=320.0)
-        self.target_gesture = config.get("video", "target_gesture", fallback="rock")
+        self.target_gesture = config.get("gestures", "target_gesture", fallback="rock")
         # Send the gtk output to the terminal if enabled in the config
         gtk_pipe = sys.stdout if self.gtk_stdout else subprocess.DEVNULL
         
@@ -481,7 +481,7 @@ class Authenticator:
         if recognition_result.gestures:
             # Cogemos el gesto con más confianza
             detected_gesture = recognition_result.gestures[0][0].category_name
-            print_msg(f"Detected gesture: {detected_gesture}")
+            print_msg(f"Detected gesture: {detected_gesture}, target gesture: {self.target_gesture}")
         return detected_gesture == self.target_gesture
 
 
