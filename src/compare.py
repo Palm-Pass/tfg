@@ -80,8 +80,8 @@ import numpy as np
 import paths_factory
 from recorders.video_capture import VideoCapture
 from i18n import _
-import gi
-gi.require_version("Gtk", "3.0")
+import subprocess
+import pwd
 try:
     import mediapipe as mp
     from mediapipe.tasks import python
@@ -609,29 +609,34 @@ class Authenticator:
             self.gtk_proc.terminate()
 
     def send_notification(self):
-        """Send a desktop notification using GI/libnotify."""
-        title = "Howdy authentication"
-        message = f"Authentication started. Gesture is: {self.target_gesture}."
+        title = "Howdy Authentication"
+        message = f"Gesture: {self.target_gesture}"
 
         try:
-            gi.require_version("Notify", "0.7")
-            from gi.repository import Notify
-        except (ValueError, ImportError) as error:
-            print_msg(f"Notification unavailable (Notify import failed): {error}")
+            target_user = os.environ.get("SUDO_USER")
+            if not target_user:
+                target_user = pwd.getpwuid(1000).pw_name
 
-        try:
-            if not Notify.is_initted():
-                Notify.init("howdy-auth")
+            uid = pwd.getpwnam(target_user).pw_uid
+            runtime_dir = f"/run/user/{uid}"
+            bus_path = f"{runtime_dir}/bus"
 
-            notification = Notify.Notification.new(title, message, "dialog-information")
-            notification.set_timeout(4000)
-            notification.show()
-            print_msg("Desktop notification sent successfully")
+            cmd = [
+                "sudo", "-u", target_user,
+                "env",
+                f"DBUS_SESSION_BUS_ADDRESS=unix:path={bus_path}",
+                f"XDG_RUNTIME_DIR={runtime_dir}",
+                "notify-send",
+                "-i", "security-high",
+                "-t", "4000",
+                title,
+                message,
+            ]
 
+            subprocess.run(cmd, check=True)
+            print("TFG-LOG: Notificación enviada")
         except Exception as error:
-            print_msg(f"Failed to send desktop notification: {error}")
-
-
+            print(f"TFG-LOG: No se pudo enviar el pop-up: {error}")
 if __name__ == "__main__":
     print_msg("Starting compare.py")
     authenticator = Authenticator()
