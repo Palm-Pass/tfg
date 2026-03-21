@@ -80,6 +80,8 @@ import numpy as np
 import paths_factory
 from recorders.video_capture import VideoCapture
 from i18n import _
+import gi
+gi.require_version("Gtk", "3.0")
 try:
     import mediapipe as mp
     from mediapipe.tasks import python
@@ -256,7 +258,7 @@ class Authenticator:
         # Send the gtk output to the terminal if enabled in the config
         gtk_pipe = sys.stdout if self.gtk_stdout else subprocess.DEVNULL
         
-		#TODO: Set ui when using sudo or login, at the moment does not pop up
+		#TODO: Set popup notifiacation with dbus
         env = os.environ.copy()
         env["DISPLAY"] = ":0"  
         env["XAUTHORITY"] = f"/home/{os.getlogin()}/.Xauthority"
@@ -605,8 +607,33 @@ class Authenticator:
     def cleanup(self):
         if self.gtk_proc:
             self.gtk_proc.terminate()
-        
+
+    def send_notification(self):
+        """Send a desktop notification using GI/libnotify."""
+        title = "Howdy authentication"
+        message = f"Authentication started. Gesture is: {self.target_gesture}."
+
+        try:
+            gi.require_version("Notify", "0.7")
+            from gi.repository import Notify
+        except (ValueError, ImportError) as error:
+            print_msg(f"Notification unavailable (Notify import failed): {error}")
+
+        try:
+            if not Notify.is_initted():
+                Notify.init("howdy-auth")
+
+            notification = Notify.Notification.new(title, message, "dialog-information")
+            notification.set_timeout(4000)
+            notification.show()
+            print_msg("Desktop notification sent successfully")
+
+        except Exception as error:
+            print_msg(f"Failed to send desktop notification: {error}")
+
+
 if __name__ == "__main__":
     print_msg("Starting compare.py")
     authenticator = Authenticator()
+    authenticator.send_notification()
     authenticator.run()
