@@ -46,7 +46,7 @@ def silence_warnings():
     logging.getLogger('google').setLevel(logging.CRITICAL)
     logging.getLogger('google.api_core').setLevel(logging.CRITICAL)
     
-    # Restore stderr and stdout for Python logging (important!)
+    # Restore stderr and stdout for Python logging
     sys.stderr = os.fdopen(os.dup(2), 'w')
     sys.stdout = os.fdopen(os.dup(1), 'w')
     
