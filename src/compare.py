@@ -152,7 +152,10 @@ class Authenticator:
         
         # UI process
         self.gtk_proc = None
-        
+
+        #Gesture only needed for testing
+        self.only_gesture = False
+    #TODO: Eliminate name from path, form first line, from config.ini and from howdy/compare.py   
     def gesture_recognition_init(self):
         base_options = python.BaseOptions(model_asset_path='/home/carlos/Escritorio/tfg/notebooks/rock_exported_model/gesture_recognizer.task')
         options = vision.GestureRecognizerOptions(base_options=base_options)
@@ -258,7 +261,10 @@ class Authenticator:
         # Send the gtk output to the terminal if enabled in the config
         gtk_pipe = sys.stdout if self.gtk_stdout else subprocess.DEVNULL
         
-		#TODO: Set popup notifiacation with dbus
+        self.gesture_only = config.getboolean("gesture-only", "gesture-only", fallback=False)
+
+        print_msg(f"Configuration gesture_only: {self.gesture_only}")
+
         env = os.environ.copy()
         env["DISPLAY"] = ":0"  
         env["XAUTHORITY"] = f"/home/{os.getlogin()}/.Xauthority"
@@ -555,8 +561,12 @@ class Authenticator:
             match_found, match, match_index = self.detect_and_match_faces(frame, gsframe)
             
             gesture_ok = self._process_gesture(frame)
-
-            if match_found and gesture_ok:
+            #TODO: Check if only gesture works
+            if (match_found or self.gesture_only) and gesture_ok:
+                #Needed to handle a successful authentication when only gesture is enabled, otherwise match and match_index would be None
+                if self.gesture_only:
+                    match = 0.0
+                    match_index = 0
                 print_msg(f"Face match found! Certainty: {match:.3f}, Model index: {match_index}")
                 self.handle_successful_authentication(match, match_index)
 

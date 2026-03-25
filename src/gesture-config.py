@@ -34,7 +34,7 @@ def update_gesture(new_gesture):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: sudo python gesture-config.py [Gesture]")
-        print(f"Example: sudo python gesture-config.py Rock")
+        print("Usage: sudo howdy gesture-config [Gesture]")
+        print(f"Example: sudo howdy gesture-config Rock")
     else:
         update_gesture(sys.argv[1])
