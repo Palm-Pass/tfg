@@ -82,6 +82,7 @@ from recorders.video_capture import VideoCapture
 from i18n import _
 import subprocess
 import pwd
+import asyncio
 try:
     import mediapipe as mp
     from mediapipe.tasks import python
@@ -290,7 +291,11 @@ class Authenticator:
         # Start video capture on the IR camera
         self.timings["ic"] = time.time()
         
-        self.video_capture = VideoCapture(self.config)
+        try:
+            self.video_capture = VideoCapture(self.config)
+        except Exception as e:
+            print_msg(f"ERROR: Error initializing video capture: {e}")
+
         
         # Note the time it took to open the camera
         self.timings["ic"] = time.time() - self.timings["ic"]
@@ -561,7 +566,7 @@ class Authenticator:
             match_found, match, match_index = self.detect_and_match_faces(frame, gsframe)
             
             gesture_ok = self._process_gesture(frame)
-            #TODO: Check if only gesture works
+
             if (match_found or self.gesture_only) and gesture_ok:
                 #Needed to handle a successful authentication when only gesture is enabled, otherwise match and match_index would be None
                 if self.gesture_only:
@@ -618,37 +623,32 @@ class Authenticator:
         if self.gtk_proc:
             self.gtk_proc.terminate()
 
-    def send_notification(self):
-        title = "Howdy Authentication"
-        message = f"Gesture: {self.target_gesture}"
+    def _get_user(self): 
+        return os.environ.get("SUDO_USER") or os.getlogin()
+    
+    async def send_notification(self):
+        target_user = self._get_user()
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        binary_path = os.path.join(base_path, "dbus_notification")
+        msg = f"Gesto: {self.target_gesture}"
 
         try:
-            target_user = os.environ.get("SUDO_USER")
-            if not target_user:
-                target_user = pwd.getpwuid(1000).pw_name
+            subprocess.Popen(
+                ["systemd-run", "--user", "-M", f"{target_user}@", binary_path, msg],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                stdin=subprocess.DEVNULL,
+                close_fds=True,      
+                start_new_session=True
+            )
 
-            uid = pwd.getpwnam(target_user).pw_uid
-            runtime_dir = f"/run/user/{uid}"
-            bus_path = f"{runtime_dir}/bus"
+            time.sleep(0.1) 
+        except Exception:
+            pass
 
-            cmd = [
-                "sudo", "-u", target_user,
-                "env",
-                f"DBUS_SESSION_BUS_ADDRESS=unix:path={bus_path}",
-                f"XDG_RUNTIME_DIR={runtime_dir}",
-                "notify-send",
-                "-i", "security-high",
-                "-t", "4000",
-                title,
-                message,
-            ]
-
-            subprocess.run(cmd, check=True)
-            print("TFG-LOG: Notificación enviada")
-        except Exception as error:
-            print(f"TFG-LOG: No se pudo enviar el pop-up: {error}")
+        print_msg(f"Sent notification to user {target_user} with gesture {self.target_gesture}")
 if __name__ == "__main__":
     print_msg("Starting compare.py")
     authenticator = Authenticator()
-    authenticator.send_notification()
+    asyncio.run(authenticator.send_notification())
     authenticator.run()
