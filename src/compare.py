@@ -1,4 +1,4 @@
-#!/home/carlos/Escritorio/tfg/.venv/bin/python
+#!/usr/bin/env python3
 
 # Compare incoming video with known faces  
 # Running in a local python instance to get around PATH issues
@@ -158,7 +158,8 @@ class Authenticator:
         self.only_gesture = False
     #TODO: Eliminate name from path, form first line, from config.ini and from howdy/compare.py   
     def gesture_recognition_init(self):
-        base_options = python.BaseOptions(model_asset_path='/home/carlos/Escritorio/tfg/notebooks/rock_exported_model/gesture_recognizer.task')
+        user = self._get_user()
+        base_options = python.BaseOptions(model_asset_path=f'/home/{user}/Escritorio/tfg/notebooks/rock_exported_model/gesture_recognizer.task')
         options = vision.GestureRecognizerOptions(base_options=base_options)
         self.recognizer = vision.GestureRecognizer.create_from_options(options)
         self.gesture_names = ["rock", "paper", "scissors"]
