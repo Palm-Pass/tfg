@@ -1,0 +1,3 @@
+[submodule "external/howdy"]
+	path = external/howdy
+	url = https://github.com/boltgolt/howdy.git
