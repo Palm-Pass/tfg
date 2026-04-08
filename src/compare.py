@@ -102,7 +102,9 @@ def exit(code=None):
 print_msg("Message from TFG Project")
 print_msg("Loaded uv libraries correctly")
 
+#TODO: Monkey patch howdy paths
 
+#TODO: Create pam .so file so it launches my compare.py and not howdy
 class Authenticator:
     """Face authentication class for Howdy"""
 
