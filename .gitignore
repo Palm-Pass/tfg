@@ -6,3 +6,8 @@ notebooks/rps_data_sample.zip
 notebooks/rock_exported_model
 
 .vscode
+
+src/dbus_notification
+
+src/pam_gesture.so
+src/pam_gesture.o
