@@ -1,0 +1,31 @@
+post_install() {
+  _howdy_gesture_setup
+}
+
+post_upgrade() {
+  _howdy_gesture_setup
+}
+
+_howdy_gesture_setup() {
+  local root="/usr/lib/howdy-gesture"
+  local pybin="/usr/bin/python3.10"
+
+  if [[ ! -x "${pybin}" ]]; then
+    echo "[howdy-gesture-tfg] ERROR: Missing ${pybin}. You must install Python 3.10.19."
+    return 1
+  fi
+
+  local pyver
+  pyver="$(${pybin} -c 'import platform; print(platform.python_version())')"
+
+  if [[ "${pyver}" != "3.10.19" ]]; then
+    echo "[howdy-gesture-tfg] ERROR: Python 3.10.19 is required, found ${pyver}."
+    return 1
+  fi
+
+  ${pybin} -m venv "${root}/.venv" || return 1
+  "${root}/.venv/bin/pip" install --upgrade pip "setuptools<72" wheel || return 1
+  "${root}/.venv/bin/pip" install -r "${root}/requirements-py310.txt" || return 1
+
+  echo "[howdy-gesture-tfg] Virtualenv created in ${root}/.venv with Python ${pyver}."
+}

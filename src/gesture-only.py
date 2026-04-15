@@ -1,8 +1,11 @@
+#!/usr/bin/env python3.10
+
 import sys
 import configparser
 import os
 
-CONFIG_PATH = "/etc/howdy/config.ini" 
+PROJECT_ROOT = os.environ.get("HOWDY_GESTURE_ROOT", "/usr/lib/howdy-gesture")
+CONFIG_PATH = os.environ.get("HOWDY_GESTURE_CONFIG", f"{PROJECT_ROOT}/config/config.ini")
 
 VALID_CONFIG_VALUES = ["true", "false"]
 

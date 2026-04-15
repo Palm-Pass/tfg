@@ -12,11 +12,19 @@ import sys
 import os
 import syslog
 
+os.environ.setdefault("HOME", os.path.expanduser("~"))
+
+try:
+    sys.stderr = open('/tmp/tfg_error.log', 'a') # Usamos 'a' de append
+    sys.stdout = open('/tmp/tfg_output.log', 'a')
+except Exception:
+    pass
+
 # SUPPRESS STDERR/STDOUT IMMEDIATELY at the file descriptor level
 # This catches C++ library warnings that are written before Python imports complete
-devnull = os.open(os.devnull, os.O_WRONLY)
-os.dup2(devnull, 2)  # Redirect fd 2 (stderr) to /dev/null
-os.dup2(devnull, 1)  # Redirect fd 1 (stdout) to /dev/null
+#devnull = os.open(os.devnull, os.O_WRONLY)
+#os.dup2(devnull, 2)  # Redirect fd 2 (stderr) to /dev/null
+#os.dup2(devnull, 1)  # Redirect fd 1 (stdout) to /dev/null
 
 # Configure environment variables BEFORE importing heavy libraries
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress TensorFlow C++ logs
@@ -65,8 +73,29 @@ syslog.openlog(ident="TFG-LOG", logoption=syslog.LOG_PID, facility=syslog.LOG_US
 def print_msg(message: str):
     """Log message to syslog"""
     syslog.syslog(syslog.LOG_INFO, f"TFG-LOG: {message}")
+# ----------- MONKEY PATCHING PATHS -----------
+DEFAULT_PROJECT_ROOT = "/usr/lib/howdy-gesture"
+PROJECT_ROOT = os.path.realpath(os.environ.get("HOWDY_GESTURE_ROOT", DEFAULT_PROJECT_ROOT))
+HOWDY_CORE_SRC = os.path.join(PROJECT_ROOT, "external/howdy/howdy/src")
+HOWDY_BASE = os.path.join(PROJECT_ROOT, "external/howdy/howdy")
 
-sys.path.append("/usr/lib/howdy")
+# 1. Añadimos la carpeta donde está paths_factory.py
+sys.path.insert(0, HOWDY_CORE_SRC)
+
+# 2. Añadimos la carpeta superior para que encuentre 'paths', 'i18n', etc.
+sys.path.insert(1, HOWDY_BASE)
+
+print(f"DEBUG: sys.path configurado. Intentando cargar paths_factory...", flush=True)
+
+import paths_factory
+paths_factory.config_file_path = lambda: os.path.join(PROJECT_ROOT, "config/config.ini")
+paths_factory.dlib_data_dir_path = lambda: os.path.join(PROJECT_ROOT, "external/howdy/data")
+paths_factory.user_model_path = lambda user: os.path.join(PROJECT_ROOT, f"models/{user}.dat")
+
+import snapshot
+snapshot.data_path = os.path.join(PROJECT_ROOT, "external/howdy/data")
+#sys.path.append("/usr/lib/howdy")
+
 import json
 import configparser
 import dlib
@@ -75,9 +104,7 @@ from datetime import timezone, datetime
 import warnings
 import atexit
 import subprocess
-import snapshot
 import numpy as np
-import paths_factory
 from recorders.video_capture import VideoCapture
 from i18n import _
 import subprocess
@@ -102,9 +129,9 @@ def exit(code=None):
 print_msg("Message from TFG Project")
 print_msg("Loaded uv libraries correctly")
 
-#TODO: Monkey patch howdy paths
+#TODO: Clean logs/prints/commented code. 
+# TODO: Clean output logs.
 
-#TODO: Create pam .so file so it launches my compare.py and not howdy
 class Authenticator:
     """Face authentication class for Howdy"""
 
@@ -160,8 +187,8 @@ class Authenticator:
         self.only_gesture = False
     #TODO: Eliminate name from path, form first line, from config.ini and from howdy/compare.py   
     def gesture_recognition_init(self):
-        user = self._get_user()
-        base_options = python.BaseOptions(model_asset_path=f'/home/{user}/Escritorio/tfg/notebooks/rock_exported_model/gesture_recognizer.task')
+        model_path = os.path.join(PROJECT_ROOT, "models/gesture_recognizer.task")
+        base_options = python.BaseOptions(model_asset_path=model_path)
         options = vision.GestureRecognizerOptions(base_options=base_options)
         self.recognizer = vision.GestureRecognizer.create_from_options(options)
         self.gesture_names = ["rock", "paper", "scissors"]
@@ -271,7 +298,7 @@ class Authenticator:
 
         env = os.environ.copy()
         env["DISPLAY"] = ":0"  
-        env["XAUTHORITY"] = f"/home/{os.getlogin()}/.Xauthority"
+        env["XAUTHORITY"] = self._get_xauthority_path()
         # Ensure the GTK UI can find the display
         # Start the auth ui, register it to be always be closed on exit
         try:
@@ -627,7 +654,17 @@ class Authenticator:
             self.gtk_proc.terminate()
 
     def _get_user(self): 
-        return os.environ.get("SUDO_USER") or os.getlogin()
+        return os.environ.get("SUDO_USER") or pwd.getpwuid(os.getuid())[0]
+
+    def _get_xauthority_path(self):
+        user = self._get_user()
+
+        try:
+            user_home = pwd.getpwnam(user).pw_dir
+        except KeyError:
+            user_home = os.path.expanduser("~")
+
+        return os.path.join(user_home, ".Xauthority")
     
     async def send_notification(self):
         target_user = self._get_user()
