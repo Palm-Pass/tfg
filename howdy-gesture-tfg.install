@@ -7,25 +7,41 @@ post_upgrade() {
 }
 
 _howdy_gesture_setup() {
-  local root="/usr/lib/howdy-gesture"
-  local pybin="/usr/bin/python3.10"
+  local root="/usr/lib/howdy"
+  local pybin="/usr/bin/python3"
 
   if [[ ! -x "${pybin}" ]]; then
-    echo "[howdy-gesture-tfg] ERROR: Missing ${pybin}. You must install Python 3.10.19."
-    return 1
+    echo "[howdy-gesture-tfg] WARNING: Missing ${pybin}. Skipping virtualenv setup."
+    return 0
+  fi
+
+  if [[ ! -d "${root}" ]]; then
+    echo "[howdy-gesture-tfg] WARNING: ${root} not found. Skipping virtualenv setup."
+    return 0
   fi
 
   local pyver
-  pyver="$(${pybin} -c 'import platform; print(platform.python_version())')"
+  pyver="$(${pybin} -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")')"
 
-  if [[ "${pyver}" != "3.10.19" ]]; then
-    echo "[howdy-gesture-tfg] ERROR: Python 3.10.19 is required, found ${pyver}."
-    return 1
+  if ! "${pybin}" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)'; then
+    echo "[howdy-gesture-tfg] WARNING: Python >= 3.10 is required, found ${pyver}. Skipping virtualenv setup."
+    return 0
   fi
 
-  ${pybin} -m venv "${root}/.venv" || return 1
-  "${root}/.venv/bin/pip" install --upgrade pip "setuptools<72" wheel || return 1
-  "${root}/.venv/bin/pip" install -r "${root}/requirements-py310.txt" || return 1
+  ${pybin} -m venv "${root}/.venv" || {
+    echo "[howdy-gesture-tfg] WARNING: Could not create virtualenv in ${root}/.venv."
+    return 0
+  }
+
+  "${root}/.venv/bin/pip" install --upgrade pip "setuptools<72" wheel || {
+    echo "[howdy-gesture-tfg] WARNING: Could not upgrade base Python tooling in virtualenv."
+    return 0
+  }
+
+  "${root}/.venv/bin/pip" install -r "${root}/requirements-py310.txt" || {
+    echo "[howdy-gesture-tfg] WARNING: Could not install Python dependencies from requirements file."
+    return 0
+  }
 
   echo "[howdy-gesture-tfg] Virtualenv created in ${root}/.venv with Python ${pyver}."
 }
