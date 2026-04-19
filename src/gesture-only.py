@@ -1,11 +1,11 @@
-#!/usr/bin/env python3.10
+#!/usr/bin/env python3
 
 import sys
 import configparser
 import os
 
-PROJECT_ROOT = os.environ.get("HOWDY_GESTURE_ROOT", "/usr/lib/howdy-gesture")
-CONFIG_PATH = os.environ.get("HOWDY_GESTURE_CONFIG", f"{PROJECT_ROOT}/config/config.ini")
+PROJECT_ROOT = os.environ.get("HOWDY_GESTURE_ROOT", "/usr/lib/howdy")
+CONFIG_PATH = os.environ.get("HOWDY_GESTURE_CONFIG", "/etc/howdy/config.ini")
 
 VALID_CONFIG_VALUES = ["true", "false"]
 
@@ -37,7 +37,7 @@ def update_config(new_value):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: sudo howdy gesture-only [true/false]")
-        print(f"Example: sudo howdy gesture-only true")
+        print("Usage: howdy-gesture-only [true/false]")
+        print("Example: howdy-gesture-only true")
     else:
         update_config(sys.argv[1])

@@ -1,11 +1,11 @@
-#!/usr/bin/env python3.10
+#!/usr/bin/env python3
 
 import sys
 import configparser
 import os
 
-PROJECT_ROOT = os.environ.get("HOWDY_GESTURE_ROOT", "/usr/lib/howdy-gesture")
-CONFIG_PATH = os.environ.get("HOWDY_GESTURE_CONFIG", f"{PROJECT_ROOT}/config/config.ini")
+PROJECT_ROOT = os.environ.get("HOWDY_GESTURE_ROOT", "/usr/lib/howdy")
+CONFIG_PATH = os.environ.get("HOWDY_GESTURE_CONFIG", "/etc/howdy/config.ini")
 
 VALID_GESTURES = ["None", "rock", "paper", "scissors"]
 
@@ -37,7 +37,7 @@ def update_gesture(new_gesture):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: sudo howdy gesture-config [Gesture]")
-        print(f"Example: sudo howdy gesture-config Rock")
+        print("Usage: howdy-gesture-config [Gesture]")
+        print("Example: howdy-gesture-config rock")
     else:
         update_gesture(sys.argv[1])

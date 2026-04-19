@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/lib/howdy/.venv/bin/python
 
 # Compare incoming video with known faces  
 # Running in a local python instance to get around PATH issues
@@ -74,10 +74,10 @@ def print_msg(message: str):
     """Log message to syslog"""
     syslog.syslog(syslog.LOG_INFO, f"TFG-LOG: {message}")
 # ----------- MONKEY PATCHING PATHS -----------
-DEFAULT_PROJECT_ROOT = "/usr/lib/howdy-gesture"
+DEFAULT_PROJECT_ROOT = "/usr/lib/howdy"
 PROJECT_ROOT = os.path.realpath(os.environ.get("HOWDY_GESTURE_ROOT", DEFAULT_PROJECT_ROOT))
-HOWDY_CORE_SRC = os.path.join(PROJECT_ROOT, "external/howdy/howdy/src")
-HOWDY_BASE = os.path.join(PROJECT_ROOT, "external/howdy/howdy")
+HOWDY_CORE_SRC = PROJECT_ROOT
+HOWDY_BASE = PROJECT_ROOT
 
 # 1. Añadimos la carpeta donde está paths_factory.py
 sys.path.insert(0, HOWDY_CORE_SRC)
@@ -87,13 +87,26 @@ sys.path.insert(1, HOWDY_BASE)
 
 print(f"DEBUG: sys.path configurado. Intentando cargar paths_factory...", flush=True)
 
+try:
+    import paths
+except ModuleNotFoundError:
+    import types
+    from pathlib import PurePath
+    paths = types.ModuleType('paths')
+    paths.config_dir = PurePath('/etc/howdy')
+    paths.dlib_data_dir = PurePath('/usr/share/dlib-data')
+    paths.user_models_dir = PurePath('/etc/howdy/models')
+    paths.log_path = PurePath('/var/log/howdy')
+    paths.data_dir = PurePath('/usr/share/howdy')
+    sys.modules['paths'] = paths
+
 import paths_factory
-paths_factory.config_file_path = lambda: os.path.join(PROJECT_ROOT, "config/config.ini")
-paths_factory.dlib_data_dir_path = lambda: os.path.join(PROJECT_ROOT, "external/howdy/data")
-paths_factory.user_model_path = lambda user: os.path.join(PROJECT_ROOT, f"models/{user}.dat")
+paths_factory.config_file_path = lambda: os.environ.get("HOWDY_GESTURE_CONFIG", "/etc/howdy/config.ini")
+paths_factory.dlib_data_dir_path = lambda: "/usr/share/dlib-data"
+paths_factory.user_model_path = lambda user: f"/etc/howdy/models/{user}.dat"
 
 import snapshot
-snapshot.data_path = os.path.join(PROJECT_ROOT, "external/howdy/data")
+snapshot.data_path = "/usr/share/howdy"
 #sys.path.append("/usr/lib/howdy")
 
 import json
@@ -534,11 +547,12 @@ class Authenticator:
         # Let the ui know that we're ready
         self.send_to_ui("M", _("Identifying you..."))
 
-        # Start the read loop
-        self.timings["fr"] = time.time()
         self.send_to_ui("M", f"The target gesture is: {self.target_gesture}.")
         print_msg(f"The target gesture is: {self.target_gesture}.")
         time.sleep(5)
+
+        # Start the read loop timer after warm-up delay
+        self.timings["fr"] = time.time()
 
         while True:
             # Increment the frame count every loop
