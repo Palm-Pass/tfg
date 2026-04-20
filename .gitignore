@@ -12,4 +12,4 @@ src/dbus_notification
 src/pam_gesture.so
 src/pam_gesture.o
 
-logs.md
+logs2.md
