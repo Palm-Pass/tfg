@@ -79,10 +79,9 @@ PROJECT_ROOT = os.path.realpath(os.environ.get("HOWDY_GESTURE_ROOT", DEFAULT_PRO
 HOWDY_CORE_SRC = PROJECT_ROOT
 HOWDY_BASE = PROJECT_ROOT
 
-# 1. Añadimos la carpeta donde está paths_factory.py
+#Insert the howdy paths so imports are found
 sys.path.insert(0, HOWDY_CORE_SRC)
 
-# 2. Añadimos la carpeta superior para que encuentre 'paths', 'i18n', etc.
 sys.path.insert(1, HOWDY_BASE)
 
 print(f"DEBUG: sys.path configurado. Intentando cargar paths_factory...", flush=True)
@@ -142,7 +141,6 @@ def exit(code=None):
 print_msg("Message from TFG Project")
 print_msg("Loaded uv libraries correctly")
 
-#TODO: Clean logs/prints/commented code. 
 # TODO: Clean output logs.
 
 class Authenticator:
@@ -198,7 +196,7 @@ class Authenticator:
 
         #Gesture only needed for testing
         self.only_gesture = False
-    #TODO: Eliminate name from path, form first line, from config.ini and from howdy/compare.py   
+
     def gesture_recognition_init(self):
         model_path = os.path.join(PROJECT_ROOT, "models/gesture_recognizer.task")
         base_options = python.BaseOptions(model_asset_path=model_path)
