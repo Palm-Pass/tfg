@@ -65,5 +65,5 @@ howdy-gesture-only false
 
 - `Makefile` is only for local development.
 - The package source is the GitHub repository and its submodule `external/howdy`.
-- Installation uses Python 3.10+.
+- Installation uses Python 3.10.
 - If camera frames are black or too dark, verify `device_path` and camera availability (`/dev/video0`, `/dev/video1`).
