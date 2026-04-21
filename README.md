@@ -26,7 +26,7 @@ The package installs standard Howdy layout (`/usr/lib/howdy`, `/etc/howdy`) and 
 
 ```bash
 sudo cp /etc/pam.d/sudo /etc/pam.d/sudo.bak
-sudoedit /etc/pam.d/sudo
+sudo nano /etc/pam.d/sudo
 ```
 
 Add this line at the top:
