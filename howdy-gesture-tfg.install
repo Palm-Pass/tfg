@@ -23,8 +23,8 @@ _howdy_gesture_setup() {
   local pyver
   pyver="$(${pybin} -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")')"
 
-  if ! "${pybin}" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)'; then
-    echo "[howdy-gesture-tfg] WARNING: Python >= 3.10 is required, found ${pyver}. Skipping virtualenv setup."
+  if ! "${pybin}" -c 'import sys; raise SystemExit(0 if sys.version_info == (3, 10, 19) else 1)'; then
+    echo "[howdy-gesture-tfg] WARNING: Python 3.10.19 is required, found ${pyver}. Skipping virtualenv setup."
     return 0
   fi
 
