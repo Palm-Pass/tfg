@@ -8,7 +8,7 @@
 
 static const char *venv_root = "/usr/lib/howdy";
 static const char *venv_python = "/usr/lib/howdy/.venv/bin/python3";
-static const char *compare_script = "/usr/lib/howdy/compare.py";
+static const char *compare_script = "/usr/lib/howdy/compare-gesture.py";
 
 static int uv_is_installed(void) {
     return access("/usr/bin/uv", X_OK) == 0;
