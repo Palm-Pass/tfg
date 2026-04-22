@@ -49,6 +49,9 @@ package() {
   install -d "${root}/models"
 
   install -m 755 "${repo}/src/compare.py" "${root}/compare-gesture.py"
+  install -m 644 "${repo}/src/Authenticate.py" "${root}/Authenticate.py"
+  install -m 644 "${repo}/src/Config.py" "${root}/Config.py"
+  install -m 644 "${repo}/src/message_print.py" "${root}/message_print.py"
   install -m 755 "${repo}/src/gesture-config.py" "${pkgdir}/usr/bin/howdy-gesture-config"
   install -m 755 "${repo}/src/gesture-only.py" "${pkgdir}/usr/bin/howdy-gesture-only"
 
