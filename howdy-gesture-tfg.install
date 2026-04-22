@@ -8,7 +8,13 @@ post_upgrade() {
 
 _howdy_gesture_setup() {
   local root="/usr/lib/howdy"
+  local uvbin="/usr/bin/uv"
   local pybin="/usr/bin/python3"
+
+  if [[ ! -x "${uvbin}" ]]; then
+    echo "[howdy-gesture-tfg] WARNING: Missing ${uvbin}. Skipping virtualenv setup."
+    return 0
+  fi
 
   if [[ ! -x "${pybin}" ]]; then
     echo "[howdy-gesture-tfg] WARNING: Missing ${pybin}. Skipping virtualenv setup."
@@ -20,28 +26,15 @@ _howdy_gesture_setup() {
     return 0
   fi
 
-  local pyver
-  pyver="$(${pybin} -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")')"
-
-  if ! "${pybin}" -c 'import sys; raise SystemExit(0 if sys.version_info == (3, 10, 19) else 1)'; then
-    echo "[howdy-gesture-tfg] WARNING: Python 3.10.19 is required, found ${pyver}. Skipping virtualenv setup."
+  if [[ ! -f "${root}/pyproject.toml" || ! -f "${root}/uv.lock" ]]; then
+    echo "[howdy-gesture-tfg] WARNING: Missing pyproject.toml or uv.lock in ${root}. Skipping uv sync."
     return 0
   fi
 
-  ${pybin} -m venv "${root}/.venv" || {
-    echo "[howdy-gesture-tfg] WARNING: Could not create virtualenv in ${root}/.venv."
+  "${uvbin}" sync --project "${root}" --locked --no-install-project --python "${pybin}" || {
+    echo "[howdy-gesture-tfg] WARNING: Could not sync virtualenv in ${root}/.venv with uv."
     return 0
   }
 
-  "${root}/.venv/bin/pip" install --upgrade pip "setuptools<72" wheel || {
-    echo "[howdy-gesture-tfg] WARNING: Could not upgrade base Python tooling in virtualenv."
-    return 0
-  }
-
-  "${root}/.venv/bin/pip" install -r "${root}/requirements-py310.txt" || {
-    echo "[howdy-gesture-tfg] WARNING: Could not install Python dependencies from requirements file."
-    return 0
-  }
-
-  echo "[howdy-gesture-tfg] Virtualenv created in ${root}/.venv with Python ${pyver}."
+  echo "[howdy-gesture-tfg] Virtualenv synced in ${root}/.venv with uv."
 }
