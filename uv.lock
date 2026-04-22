@@ -1,6 +1,6 @@
 version = 1
 revision = 3
-requires-python = "==3.10.*"
+requires-python = "==3.10.19"
 resolution-markers = [
     "sys_platform == 'darwin'",
     "platform_machine == 'aarch64' and sys_platform == 'linux'",
@@ -590,6 +590,23 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/2b/ae/f2adc5d0ca9626db3277a3d87516e124cbc5d0eea0bd79bc085702d04f2c/h5py-3.16.0-cp310-cp310-musllinux_1_2_aarch64.whl", hash = "sha256:1677ad48b703f44efc9ea0c3ab284527f81bc4f318386aaaebc5fede6bbae56f", size = 4839173, upload-time = "2026-03-06T13:47:43.586Z" },
     { url = "https://files.pythonhosted.org/packages/64/0b/e0c8c69da1d8838da023a50cd3080eae5d475691f7636b35eff20bb6ef20/h5py-3.16.0-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:7c4dd4cf5f0a4e36083f73172f6cfc25a5710789269547f132a20975bfe2434c", size = 5076216, upload-time = "2026-03-06T13:47:45.315Z" },
     { url = "https://files.pythonhosted.org/packages/66/35/d88fd6718832133c885004c61ceeeb24dbd6397ef877dbed6b3a64d6a286/h5py-3.16.0-cp310-cp310-win_amd64.whl", hash = "sha256:bdef06507725b455fccba9c16529121a5e1fbf56aa375f7d9713d9e8ff42454d", size = 3183639, upload-time = "2026-03-06T13:47:47.041Z" },
+]
+
+[[package]]
+name = "howdy"
+version = "3.0.0b0"
+source = { editable = "../../howdy" }
+dependencies = [
+    { name = "dlib" },
+    { name = "numpy" },
+    { name = "opencv-python" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "dlib" },
+    { name = "numpy" },
+    { name = "opencv-python" },
 ]
 
 [[package]]
@@ -2013,6 +2030,7 @@ dependencies = [
     { name = "click" },
     { name = "dlib" },
     { name = "face-recognition" },
+    { name = "howdy" },
     { name = "ipykernel" },
     { name = "mediapipe" },
     { name = "mediapipe-model-maker" },
@@ -2031,6 +2049,7 @@ requires-dist = [
     { name = "click", specifier = ">=8.3.1" },
     { name = "dlib", specifier = ">=20.0.0" },
     { name = "face-recognition", specifier = ">=1.3.0" },
+    { name = "howdy", editable = "../../howdy" },
     { name = "ipykernel", specifier = ">=7.2.0" },
     { name = "mediapipe", specifier = ">=0.10.21" },
     { name = "mediapipe-model-maker", specifier = ">=0.2.1.4" },
