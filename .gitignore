@@ -11,5 +11,11 @@ src/dbus_notification
 
 src/pam_gesture.so
 src/pam_gesture.o
+pam_gesture.so
+pam_gesture.o
+dbus_notification
+
+*.pkg.tar.zst
+pkg/
 
 logs2.md

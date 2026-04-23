@@ -6,9 +6,9 @@
 #include <unistd.h>
 #include <syslog.h>
 
-static const char *venv_root = "/usr/lib/howdy";
-static const char *venv_python = "/usr/lib/howdy/.venv/bin/python3";
-static const char *compare_script = "/usr/lib/howdy/compare-gesture.py";
+static const char *venv_root = "/lib/security/howdy";
+static const char *venv_python = "/lib/security/howdy/.venv/bin/python3";
+static const char *compare_script = "/lib/security/howdy/compare-gesture.py";
 
 static int uv_is_installed(void) {
     return access("/usr/bin/uv", X_OK) == 0;
@@ -59,7 +59,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     }
 
     if (!venv_exists()) {
-        pam_syslog(pamh, LOG_ERR, "TFG-LOG: venv not found at /usr/lib/howdy/.venv");
+        pam_syslog(pamh, LOG_ERR, "TFG-LOG: venv not found at /lib/security/howdy/.venv");
         return PAM_AUTH_ERR;
     }
     //pam_info(pamh, "Gesture only: {gesture_only}. Gesture {gesture}.");
