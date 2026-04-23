@@ -62,7 +62,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
         pam_syslog(pamh, LOG_ERR, "TFG-LOG: venv not found at /usr/lib/howdy/.venv");
         return PAM_AUTH_ERR;
     }
-
+    //pam_info(pamh, "Gesture only: {gesture_only}. Gesture {gesture}.");
+    //Use the palm pass hints to get this information
     status = run_compare(user);
     if (status != -1 && WIFEXITED(status) && WEXITSTATUS(status) == 0) {
         pam_syslog(pamh, LOG_INFO, "TFG-LOG: compare.py returned success for %s", user);
