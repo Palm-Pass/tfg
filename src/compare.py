@@ -9,30 +9,9 @@ from message_print import Printer, setup_runtime_environment, silence_warnings
 setup_runtime_environment()
 silence_warnings()
 
-DEFAULT_PROJECT_ROOT = "/usr/lib/howdy"
-PROJECT_ROOT = os.path.realpath(os.environ.get("HOWDY_GESTURE_ROOT", DEFAULT_PROJECT_ROOT))
-HOWDY_CORE_SRC = PROJECT_ROOT
-HOWDY_BASE = PROJECT_ROOT
-
-sys.path.insert(0, HOWDY_CORE_SRC)
-sys.path.insert(1, HOWDY_BASE)
-
-try:
-    import paths
-except ModuleNotFoundError:
-    import types
-    from pathlib import PurePath
-
-    paths = types.ModuleType("paths")
-    paths.config_dir = PurePath("/etc/howdy")
-    paths.dlib_data_dir = PurePath("/usr/share/dlib-data")
-    paths.user_models_dir = PurePath("/etc/howdy/models")
-    paths.log_path = PurePath("/var/log/howdy")
-    paths.data_dir = PurePath("/usr/share/howdy")
-    sys.modules["paths"] = paths
-
-import paths_factory
-import snapshot
+from howdy import paths_factory
+from howdy import snapshot
+from howdy import paths
 
 paths_factory.config_file_path = lambda: os.environ.get("HOWDY_GESTURE_CONFIG", "/etc/howdy/config.ini")
 paths_factory.dlib_data_dir_path = lambda: "/usr/share/dlib-data"

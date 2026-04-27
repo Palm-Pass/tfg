@@ -1,6 +1,6 @@
 import configparser
 
-import paths_factory
+from howdy import paths_factory
 
 
 class Config:

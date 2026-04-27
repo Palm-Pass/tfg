@@ -11,11 +11,11 @@ from datetime import datetime, timezone
 import cv2
 import dlib
 import numpy as np
-import paths_factory
-import snapshot
+from howdy import paths_factory
+from howdy import snapshot
 from Config import Config
-from i18n import _
-from recorders.video_capture import VideoCapture
+from howdy.i18n import _
+from howdy.recorders.video_capture import VideoCapture
 
 try:
     import mediapipe as mp
@@ -414,7 +414,7 @@ class Authenticator:
                 if len(self.snapframes) < 3:
                     self.snapframes.append(frame)
 
-            skip_frame, _ = self.process_frame_darkness(gsframe)
+            skip_frame, __ = self.process_frame_darkness(gsframe)
             if skip_frame:
                 continue
 
