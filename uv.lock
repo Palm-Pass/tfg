@@ -264,6 +264,18 @@ wheels = [
 ]
 
 [[package]]
+name = "dbus-notification"
+version = "2026.2.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "jeepney" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/86/25/a8af2739ba55c42ce4e9cd449756e68bd492c68600c796f6fa7876d4de79/dbus_notification-2026.2.1.tar.gz", hash = "sha256:e2cb219243695b3e13aba351a2650fa257f320c5abf39715c277a856d6b81918", size = 5961, upload-time = "2026-02-09T20:33:36.059Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6b/5e/def4f77eff82ec4c5e79b1256e11dc1c833a70ebb3fc6e597e68911a970a/dbus_notification-2026.2.1-py3-none-any.whl", hash = "sha256:bb7bd51736aeb965bdb24f9ef67acb047ac862dd503da45fa1de225ffe5284ac", size = 6727, upload-time = "2026-02-09T20:33:35.348Z" },
+]
+
+[[package]]
 name = "debugpy"
 version = "1.8.20"
 source = { registry = "https://pypi.org/simple" }
@@ -737,6 +749,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/72/3a/79a912fbd4d8dd6fbb02bf69afd3bb72cf0c729bb3063c6f4498603db17a/jedi-0.19.2.tar.gz", hash = "sha256:4770dc3de41bde3966b02eb84fbcf557fb33cce26ad23da12c742fb50ecb11f0", size = 1231287, upload-time = "2024-11-11T01:41:42.873Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c0/5a/9cac0c82afec3d09ccd97c8b6502d48f165f9124db81b4bcb90b4af974ee/jedi-0.19.2-py2.py3-none-any.whl", hash = "sha256:a8ef22bde8490f57fe5c7681a3c83cb58874daf72b4784de3cce5b6ef6edb5b9", size = 1572278, upload-time = "2024-11-11T01:41:40.175Z" },
+]
+
+[[package]]
+name = "jeepney"
+version = "0.9.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/7b/6f/357efd7602486741aa73ffc0617fb310a29b588ed0fd69c2399acbb85b0c/jeepney-0.9.0.tar.gz", hash = "sha256:cf0e9e845622b81e4a28df94c40345400256ec608d0e55bb8a3feaa9163f5732", size = 106758, upload-time = "2025-02-27T18:51:01.684Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b2/a3/e137168c9c44d18eff0376253da9f1e9234d0239e0ee230d2fee6cea8e55/jeepney-0.9.0-py3-none-any.whl", hash = "sha256:97e5714520c16fc0a45695e5365a2e11b81ea79bba796e26f9f1d178cb182683", size = 49010, upload-time = "2025-02-27T18:51:00.104Z" },
 ]
 
 [[package]]
@@ -2028,6 +2049,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "click" },
+    { name = "dbus-notification" },
     { name = "dlib" },
     { name = "face-recognition" },
     { name = "howdy" },
@@ -2047,6 +2069,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "click", specifier = ">=8.3.1" },
+    { name = "dbus-notification", specifier = ">=2026.2.1" },
     { name = "dlib", specifier = ">=20.0.0" },
     { name = "face-recognition", specifier = ">=1.3.0" },
     { name = "howdy", editable = "../../howdy" },

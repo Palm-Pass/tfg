@@ -12,9 +12,8 @@ depends=(
   'dbus'
   'uv'
   'python'
-  'libevdev'
-  'libinih'
 )
+backup=('etc/howdy/config.ini')
 makedepends=(
   'gcc'
   'git'
@@ -48,17 +47,30 @@ package() {
 
   install -d "${root}/models"
 
+  # Core scripts renamed to match pam_gesture.c expectations
   install -m 755 "${repo}/src/compare.py" "${root}/compare-gesture.py"
   install -m 644 "${repo}/src/Authenticate.py" "${root}/Authenticate.py"
   install -m 644 "${repo}/src/Config.py" "${root}/Config.py"
   install -m 644 "${repo}/src/message_print.py" "${root}/message_print.py"
+  
+  # Supplementary scripts for gesture hints and notifications
+  install -m 644 "${repo}/src/palm_pass_hints.py" "${root}/palm_pass_hints.py"
+  install -m 644 "${repo}/src/dbus_notification.py" "${root}/dbus_notification.py"
+  
+  # Configuration file
+  install -d "${pkgdir}/etc/howdy"
+  install -m 644 "${repo}/src/config.ini" "${pkgdir}/etc/howdy/config.ini"
+  
+  # Binaries
+  install -m 755 "${srcdir}/dbus_notification" "${root}/dbus_notification"
+  install -m 644 "${srcdir}/pam_gesture.so" "${pkgdir}/usr/lib/security/pam_gesture.so"
+
+  # Global binaries
   install -m 755 "${repo}/src/gesture-config.py" "${pkgdir}/usr/bin/howdy-gesture-config"
   install -m 755 "${repo}/src/gesture-only.py" "${pkgdir}/usr/bin/howdy-gesture-only"
-
+  
+  # Models and dependencies
   install -m 644 "${repo}/models/gesture_recognizer.task" "${root}/models/gesture_recognizer.task"
   install -m 644 "${repo}/pyproject.toml" "${root}/pyproject.toml"
   install -m 644 "${repo}/uv.lock" "${root}/uv.lock"
-
-  install -m 755 "${srcdir}/dbus_notification" "${root}/dbus_notification"
-  install -m 644 "${srcdir}/pam_gesture.so" "${pkgdir}/usr/lib/security/pam_gesture.so"
 }

@@ -9,15 +9,9 @@ post_upgrade() {
 _howdy_gesture_setup() {
   local root="/usr/lib/howdy"
   local uvbin="/usr/bin/uv"
-  local pybin="/usr/bin/python3"
 
   if [[ ! -x "${uvbin}" ]]; then
     echo "[howdy-gesture-tfg] WARNING: Missing ${uvbin}. Skipping virtualenv setup."
-    return 0
-  fi
-
-  if [[ ! -x "${pybin}" ]]; then
-    echo "[howdy-gesture-tfg] WARNING: Missing ${pybin}. Skipping virtualenv setup."
     return 0
   fi
 
@@ -31,7 +25,7 @@ _howdy_gesture_setup() {
     return 0
   fi
 
-  "${uvbin}" sync --project "${root}" --locked --no-install-project --python "${pybin}" || {
+  "${uvbin}" sync --project "${root}" --locked --no-install-project || {
     echo "[howdy-gesture-tfg] WARNING: Could not sync virtualenv in ${root}/.venv with uv."
     return 0
   }
