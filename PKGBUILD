@@ -7,17 +7,14 @@ url="https://github.com/Palm-Pass/tfg"
 license=('MIT')
 install="${pkgname}.install"
 depends=(
-  'howdy'
   'pam'
   'dbus'
   'uv'
   'python'
 )
-backup=('etc/howdy/config.ini')
 makedepends=(
   'gcc'
   'git'
-  'pkgconf'
 )
 source=(
   "tfg::git+https://github.com/Palm-Pass/tfg.git#branch=main"
@@ -37,8 +34,6 @@ build() {
   cd "${srcdir}/tfg"
   gcc -fPIC -fno-stack-protector -Wall -c src/pam_gesture.c -o "${srcdir}/pam_gesture.o"
   ld -x --shared -o "${srcdir}/pam_gesture.so" "${srcdir}/pam_gesture.o" -lpam
-
-  gcc src/dbus_notification.c -o "${srcdir}/dbus_notification" $(pkg-config --cflags --libs dbus-1)
 }
 
 package() {
@@ -57,12 +52,7 @@ package() {
   install -m 644 "${repo}/src/palm_pass_hints.py" "${root}/palm_pass_hints.py"
   install -m 644 "${repo}/src/dbus_notification.py" "${root}/dbus_notification.py"
   
-  # Configuration file
-  install -d "${pkgdir}/etc/howdy"
-  install -m 644 "${repo}/src/config.ini" "${pkgdir}/etc/howdy/config.ini"
-  
   # Binaries
-  install -m 755 "${srcdir}/dbus_notification" "${root}/dbus_notification"
   install -m 644 "${srcdir}/pam_gesture.so" "${pkgdir}/usr/lib/security/pam_gesture.so"
 
   # Global binaries

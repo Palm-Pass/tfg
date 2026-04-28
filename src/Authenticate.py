@@ -477,12 +477,13 @@ class Authenticator:
     async def send_notification(self):
         target_user = self._get_user()
         base_path = os.path.dirname(os.path.abspath(__file__))
-        binary_path = os.path.join(base_path, "dbus_notification")
+        script_path = os.path.join(base_path, "dbus_notification.py")
+        python_path = "/usr/lib/howdy/.venv/bin/python"
         message = f"Gesto: {self.target_gesture}"
 
         try:
             subprocess.Popen(
-                ["systemd-run", "--user", "-M", f"{target_user}@", binary_path, message],
+                ["systemd-run", "--user", "-M", f"{target_user}@", python_path, script_path, "--message", message],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
                 stdin=subprocess.DEVNULL,
