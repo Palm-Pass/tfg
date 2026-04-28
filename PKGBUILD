@@ -43,8 +43,6 @@ package() {
   local root="${pkgdir}/usr/lib/howdy"
 
   install -d "${root}/models"
-  install -d "${pkgdir}/lib/security/howdy/dlib-data"
-  install -d "${pkgdir}/lib/security/howdy/models"
 
   # Core scripts renamed to match pam_gesture.c expectations
   install -m 755 "${repo}/src/compare.py" "${root}/compare-gesture.py"
