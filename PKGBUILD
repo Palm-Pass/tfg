@@ -53,6 +53,7 @@ package() {
   install -m 644 "${repo}/src/dbus_notification.py" "${root}/dbus_notification.py"
   
   # Binaries
+  install -d "${pkgdir}/usr/lib/security"
   install -m 644 "${srcdir}/pam_gesture.so" "${pkgdir}/usr/lib/security/pam_gesture.so"
 
   # Global binaries
