@@ -57,6 +57,7 @@ package() {
   install -m 644 "${srcdir}/pam_gesture.so" "${pkgdir}/usr/lib/security/pam_gesture.so"
 
   # Global binaries
+  install -d "${pkgdir}/usr/bin"
   install -m 755 "${repo}/src/gesture-config.py" "${pkgdir}/usr/bin/howdy-gesture-config"
   install -m 755 "${repo}/src/gesture-only.py" "${pkgdir}/usr/bin/howdy-gesture-only"
   
