@@ -4,8 +4,10 @@ pkgrel=1
 pkgdesc="Howdy + gesture authentication layer (TFG)"
 arch=('x86_64')
 url="https://github.com/Palm-Pass/tfg"
+
 license=('MIT')
 install="${pkgname}.install"
+backup=('etc/howdy/config.ini')
 depends=(
   'pam'
   'dbus'
@@ -56,10 +58,15 @@ package() {
   install -d "${pkgdir}/usr/lib/security"
   install -m 644 "${srcdir}/pam_gesture.so" "${pkgdir}/usr/lib/security/pam_gesture.so"
 
-  # Global binaries
+  # Default config
+  install -d "${pkgdir}/etc/howdy"
+  install -m 644 "${repo}/config/config.ini" "${pkgdir}/etc/howdy/config.ini"
+
+  # Global binaries and symlinks
   install -d "${pkgdir}/usr/bin"
   install -m 755 "${repo}/src/gesture-config.py" "${pkgdir}/usr/bin/howdy-gesture-config"
   install -m 755 "${repo}/src/gesture-only.py" "${pkgdir}/usr/bin/howdy-gesture-only"
+  ln -s /usr/lib/howdy/.venv/bin/howdy "${pkgdir}/usr/bin/howdy"
   
   # Models and dependencies
   install -m 644 "${repo}/models/gesture_recognizer.task" "${root}/models/gesture_recognizer.task"
