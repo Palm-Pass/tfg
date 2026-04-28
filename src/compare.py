@@ -10,13 +10,8 @@ setup_runtime_environment()
 silence_warnings()
 
 from howdy import paths_factory
-from howdy import snapshot
-from howdy import paths
 
 paths_factory.config_file_path = lambda: os.environ.get("HOWDY_GESTURE_CONFIG", "/etc/howdy/config.ini")
-paths_factory.dlib_data_dir_path = lambda: "/usr/share/dlib-data"
-paths_factory.user_model_path = lambda user: f"/etc/howdy/models/{user}.dat"
-snapshot.data_path = "/usr/share/howdy"
 
 from Authenticate import run_authenticator
 
