@@ -12,11 +12,7 @@ static const char *venv_python = "/usr/lib/howdy/.venv/bin/python3";
 static const char *compare_script = "/usr/lib/howdy/compare-gesture.py";
 
 static int uv_is_installed(void) {
-    return access("/usr/bin/uv", X_OK) == 0;
-}
-
-static int venv_exists(void) {
-    return access(venv_python, F_OK) == 0;
+    return access("/usr/bin/uv", F_OK) == 0;
 }
 
 static int run_compare(const char *user) {
@@ -105,11 +101,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 
     if (!uv_is_installed()) {
         pam_syslog(pamh, LOG_ERR, "TFG-LOG: uv is not installed at /usr/bin/uv");
-        return PAM_AUTH_ERR;
-    }
-
-    if (!venv_exists()) {
-        pam_syslog(pamh, LOG_ERR, "TFG-LOG: venv not found at %s", venv_python);
         return PAM_AUTH_ERR;
     }
 
