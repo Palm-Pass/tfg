@@ -93,7 +93,8 @@ def load_face_models(user, printer):
 
 
 def init_video_capture(config, printer):
-    printer.print_msg("Initializing video capture")
+    device_path = config.parser.get("video", "device_path", fallback="NOT FOUND")
+    printer.print_msg(f"Initializing video capture — device_path: {device_path}")
     try:
         video_capture = VideoCapture(config.parser)
     except BaseException as error:
