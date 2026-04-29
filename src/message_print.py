@@ -43,10 +43,3 @@ def silence_warnings():
     logging.getLogger("absl").setLevel(logging.ERROR)
     logging.getLogger("google").setLevel(logging.CRITICAL)
     logging.getLogger("google.api_core").setLevel(logging.CRITICAL)
-
-    try:
-        import tensorflow as tf
-
-        tf.get_logger().setLevel(logging.ERROR)
-    except Exception:
-        pass
