@@ -49,7 +49,8 @@ package() {
   install -m 644 "${repo}/src/Authenticate.py" "${root}/Authenticate.py"
   install -m 644 "${repo}/src/Config.py" "${root}/Config.py"
   install -m 644 "${repo}/src/message_print.py" "${root}/message_print.py"
-  
+  install -m 644 "${repo}/src/palm_pass_authenticator.py" "${root}/palm_pass_authenticator.py"
+
   # Supplementary scripts for gesture hints and notifications
   install -m 644 "${repo}/src/palm_pass_hints.py" "${root}/palm_pass_hints.py"
   install -m 644 "${repo}/src/dbus_notification.py" "${root}/dbus_notification.py"
