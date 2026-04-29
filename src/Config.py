@@ -39,7 +39,7 @@ class Config:
         self.exposure = self.parser.getint("video", "exposure", fallback=-1)
         self.max_height = self.parser.getfloat("video", "max_height", fallback=320.0)
         self.target_gesture = self.parser.get("gestures", "target_gesture", fallback="rock")
-        self.gesture_only = self.parser.getboolean("gesture-only", "gesture-only", fallback=False)
+        self.gesture_only = self.parser.getboolean("gestures", "gesture_only", fallback=False)
 
         self._printer.print_msg(f"Configuration gesture_only: {self.gesture_only}")
-        return self.parser
+        return self
