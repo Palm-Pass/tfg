@@ -17,11 +17,24 @@ from Config import Config
 from howdy.i18n import _
 from howdy.recorders.video_capture import VideoCapture
 
-try:
-    import mediapipe as mp
-    from mediapipe.tasks import python
-    from mediapipe.tasks.python import vision
-except ImportError:
+def _mediapipe_available():
+    result = subprocess.run(
+        [sys.executable, "-c", "import mediapipe"],
+        capture_output=True,
+        timeout=10,
+    )
+    return result.returncode == 0
+
+if _mediapipe_available():
+    try:
+        import mediapipe as mp
+        from mediapipe.tasks import python
+        from mediapipe.tasks.python import vision
+    except ImportError:
+        mp = None
+        python = None
+        vision = None
+else:
     mp = None
     python = None
     vision = None
