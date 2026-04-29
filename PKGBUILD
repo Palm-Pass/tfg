@@ -56,7 +56,7 @@ package() {
   
   # Binaries
   install -d "${pkgdir}/usr/lib/security"
-  install -m 644 "${srcdir}/pam_gesture.so" "${pkgdir}/usr/lib/security/pam_gesture.so"
+  install -m 755 "${srcdir}/pam_gesture.so" "${pkgdir}/usr/lib/security/pam_gesture.so"
 
   # Default config
   install -d "${pkgdir}/etc/howdy"
