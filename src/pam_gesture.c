@@ -16,7 +16,7 @@ static int uv_is_installed(void) {
 }
 
 static int venv_exists(void) {
-    return access(venv_python, X_OK) == 0;
+    return access(venv_python, F_OK) == 0;
 }
 
 static int run_compare(const char *user) {
@@ -109,7 +109,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     }
 
     if (!venv_exists()) {
-        pam_syslog(pamh, LOG_ERR, "TFG-LOG: venv not found at /lib/security/howdy/.venv");
+        pam_syslog(pamh, LOG_ERR, "TFG-LOG: venv not found at %s", venv_python);
         return PAM_AUTH_ERR;
     }
 
