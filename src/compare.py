@@ -96,8 +96,10 @@ def init_video_capture(config, printer):
     printer.print_msg("Initializing video capture")
     try:
         video_capture = VideoCapture(config.parser)
-    except Exception as error:
-        printer.print_msg(f"ERROR: Error initializing video capture: {error}")
+    except BaseException as error:
+        import traceback
+        printer.print_msg(f"ERROR: Error initializing video capture: {type(error).__name__}: {error}")
+        printer.print_msg(traceback.format_exc())
         sys.exit(1)
     printer.print_msg("Video capture initialized")
     return video_capture
