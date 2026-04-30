@@ -7,7 +7,7 @@ This repository contains a customized Howdy-based gesture authentication flow.
 ```bash
 git clone https://github.com/Palm-Pass/tfg.git
 cd tfg
-makepkg -f --noconfirm
+makepkg -sfi
 sudo pacman -U ./howdy-gesture-tfg-*.pkg.tar.zst --noconfirm
 ```
 
@@ -15,7 +15,7 @@ sudo pacman -U ./howdy-gesture-tfg-*.pkg.tar.zst --noconfirm
 
 - Arch Linux or compatible system
 - Python 3.10+ available as `/usr/bin/python3`
-- PAM and D-Bus installed
+- PAM and CMake installed
 - Build tools: `meson`, `ninja`, `gcc`, `git`, `pkgconf`
 
 The package installs standard Howdy layout (`/usr/lib/howdy`, `/etc/howdy`) and creates `/usr/lib/howdy/.venv` during installation to install Python dependencies.
