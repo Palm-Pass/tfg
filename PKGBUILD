@@ -17,6 +17,7 @@ depends=(
 makedepends=(
   'gcc'
   'git'
+  'cmake'
 )
 source=(
   "tfg::git+https://github.com/Palm-Pass/tfg.git#branch=main"
