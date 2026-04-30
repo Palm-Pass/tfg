@@ -130,10 +130,6 @@ sudo howdy-gesture-only false
 - Verify the config: `sudo howdy config` → `device_path`
 - Check logs: `journalctl -xe | grep TFG-LOG`
 
-**No pop-up notification appears**
-- Install a notification daemon: `sudo pacman -S dunst` (X11) or `sudo pacman -S mako` (Wayland)
-- Enable and start it: `systemctl --user enable --now dunst`
-
 **Face not recognized**
 - Re-add your face model: `sudo howdy -U $USER add`
 - Increase `timeout` in the config to give more time
