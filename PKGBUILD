@@ -13,11 +13,15 @@ depends=(
   'dbus'
   'uv'
   'python'
+  'gobject-introspection'
+  'cairo'
+  'mesa'
 )
 makedepends=(
   'gcc'
   'git'
   'cmake'
+  'gobject-introspection'
 )
 source=(
   "tfg::git+https://github.com/Palm-Pass/tfg.git#branch=main"

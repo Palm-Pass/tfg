@@ -32,6 +32,9 @@ _howdy_gesture_setup() {
 
   echo "[howdy-gesture-tfg] Virtualenv synced in ${root}/.venv with uv."
 
+  chmod -R a+rX "${root}/.venv"
+  find "${root}/.venv/bin" -type f -exec chmod a+x {} +
+
   local dlib_dir="/lib/security/howdy/dlib-data"
   mkdir -p "${dlib_dir}"
   mkdir -p "/lib/security/howdy/models"
