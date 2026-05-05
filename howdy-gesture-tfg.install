@@ -25,7 +25,8 @@ _howdy_gesture_setup() {
     return 0
   fi
 
-  "${uvbin}" sync --project "${root}" --locked --no-install-project || {
+  UV_PYTHON_INSTALL_DIR="${root}/.uv-python" \
+    "${uvbin}" sync --project "${root}" --locked --no-install-project || {
     echo "[howdy-gesture-tfg] WARNING: Could not sync virtualenv in ${root}/.venv with uv."
     return 0
   }
@@ -33,6 +34,7 @@ _howdy_gesture_setup() {
   echo "[howdy-gesture-tfg] Virtualenv synced in ${root}/.venv with uv."
 
   chmod -R a+rX "${root}/.venv"
+  chmod -R a+rX "${root}/.uv-python"
   find "${root}/.venv/bin" -type f -exec chmod a+x {} +
 
   local dlib_dir="/lib/security/howdy/dlib-data"
