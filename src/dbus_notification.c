@@ -7,7 +7,7 @@ void send_notification(const char* body_msg) {
     DBusConnection* conn;
     DBusMessage* msg;
     DBusMessageIter iter, arr_iter;
-    DBusPendingCall* pending; // Para esperar al bus
+    DBusPendingCall* pending; 
 
     const char *app_name = "gnome-shell";
     dbus_uint32_t replaces_id = 0;
@@ -43,9 +43,7 @@ void send_notification(const char* body_msg) {
 
     dbus_message_iter_append_basic(&iter, DBUS_TYPE_INT32, &timeout);
 
-    // --- CAMBIO CRÍTICO AQUÍ ---
-    // En lugar de dbus_connection_send, usamos send_with_reply_and_block
-    // Esto obliga al programa a esperar a que el mensaje REALMENTE se envíe.
+
     DBusMessage* reply = dbus_connection_send_with_reply_and_block(conn, msg, 1000, &err);
 
     if (dbus_error_is_set(&err)) {
@@ -57,7 +55,7 @@ void send_notification(const char* body_msg) {
     }
 
     dbus_message_unref(msg);
-    // No cerramos la conexión bruscamente, dejamos que el OS limpie
+
 }
 
 int main(int argc, char** argv) {
