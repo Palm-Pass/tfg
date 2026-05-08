@@ -111,7 +111,7 @@ def send_notification(target_gesture, printer):
     target_user = os.environ.get("SUDO_USER") or pwd.getpwuid(os.getuid())[0]
     script_path = "/usr/lib/howdy/dbus_notification.py"
     python_path = "/usr/lib/howdy/.venv/bin/python3"
-    message = f"Gesto: {target_gesture}"
+    message = f"Gesture: {target_gesture}"
 
     try:
         subprocess.Popen(
