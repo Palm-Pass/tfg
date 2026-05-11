@@ -19,3 +19,5 @@ dbus_notification
 pkg/
 
 logs2.md
+notebooks/benchmarking/ghostfacenets/*
+notebooks/benchmarking/face_recognition_comparison.png
