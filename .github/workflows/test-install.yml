@@ -42,7 +42,7 @@ jobs:
           chown -R builder:builder /home/builder/pkg
 
       - name: Build and install package
-        run: sudo -u builder bash -c "cd /home/builder/pkg && makepkg -si --noconfirm"
+        run: sudo -u builder bash -c "cd /home/builder/pkg && GIT_TERMINAL_PROMPT=0 makepkg -si --noconfirm"
 
       - name: Verify installation
         run: |
