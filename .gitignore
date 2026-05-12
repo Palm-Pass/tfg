@@ -18,6 +18,6 @@ dbus_notification
 *.pkg.tar.zst
 pkg/
 
-logs2.md
+notebooks/benchmarking/ghostfacenets
 notebooks/benchmarking/ghostfacenets/*
 notebooks/benchmarking/face_recognition_comparison.png
