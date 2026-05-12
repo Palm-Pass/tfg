@@ -9,46 +9,26 @@ jobs:
   test:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    container:
-      image: archlinux:latest
 
     steps:
-      - name: Install git before checkout
-        run: pacman -Sy --noconfirm git
-
       - uses: actions/checkout@v4
 
-      - name: Update system and install build dependencies
-        run: |
-          pacman -Syu --noconfirm
-          pacman -S --noconfirm \
-            base-devel \
-            git \
-            uv \
-            python \
-            gcc \
-            cmake \
-            pam \
-            dbus \
-            gobject-introspection \
-            cairo \
-            mesa
+      - name: Set up Arch Linux environment
+        uses: rangho-actions/setup-arch@v1
+        with:
+          packages: uv python gcc cmake pam dbus gobject-introspection cairo mesa sudo
 
-      - name: Set up non-root builder user
+      - name: Set up builder user and build package
+        shell: arch.sh {0}
         run: |
           useradd -m builder
           echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-          cp -r . /home/builder/pkg
+          cp -r $GITHUB_WORKSPACE /home/builder/pkg
           chown -R builder:builder /home/builder/pkg
-
-      - name: Build and install package
-        run: |
-          sudo -u builder bash -c "
-            git config --global credential.helper ''
-            cd /home/builder/pkg && GIT_TERMINAL_PROMPT=0 makepkg -si --noconfirm
-          "
+          sudo -u builder bash -c "cd /home/builder/pkg && makepkg -si --noconfirm"
 
       - name: Verify installation
+        shell: arch.sh {0}
         run: |
           test -f /usr/lib/security/pam_gesture.so
           test -f /usr/lib/howdy/compare-gesture.py
