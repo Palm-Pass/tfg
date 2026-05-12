@@ -7,18 +7,53 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+
     steps:
+      - name: Install dependencies
+        run: pacman -Sy --noconfirm git openssh base-devel sudo
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Publish to AUR
-        uses: KSXGitHub/github-actions-deploy-aur@v2.7.0
-        with:
-          pkgname: howdy-gesture-tfg
-          pkgbuild: ./PKGBUILD
-          commit_username: ${{ secrets.AUR_USERNAME }}
-          commit_email: ${{ secrets.AUR_EMAIL }}
-          ssh_private_key: ${{ secrets.AUR_SSH_KEY }}
-          commit_message: "Update to ${{ github.sha }}"
-          ssh_keyscan_types: rsa,ecdsa,ed25519
+      - name: Set up SSH for AUR
+        env:
+          AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
+        run: |
+          mkdir -p /root/.ssh
+          printf '%s' "$AUR_SSH_KEY" > /root/.ssh/aur_key
+          chmod 600 /root/.ssh/aur_key
+          ssh-keyscan -t rsa,ecdsa,ed25519 aur.archlinux.org >> /root/.ssh/known_hosts
+          printf 'Host aur.archlinux.org\n  IdentityFile /root/.ssh/aur_key\n  User aur\n' > /root/.ssh/config
+          chmod 600 /root/.ssh/config
+
+      - name: Clone AUR repo
+        env:
+          AUR_USERNAME: ${{ secrets.AUR_USERNAME }}
+          AUR_EMAIL: ${{ secrets.AUR_EMAIL }}
+        run: |
+          git config --global user.name "$AUR_USERNAME"
+          git config --global user.email "$AUR_EMAIL"
+          git config --global safe.directory '*'
+          git clone ssh://aur@aur.archlinux.org/howdy-gesture-tfg.git /tmp/aur-pkg
+          cp PKGBUILD /tmp/aur-pkg/
+          [ -f howdy-gesture-tfg.install ] && cp howdy-gesture-tfg.install /tmp/aur-pkg/
+
+      - name: Generate .SRCINFO
+        run: |
+          useradd -m builder
+          cp -r /tmp/aur-pkg /tmp/aur-build
+          chown -R builder:builder /tmp/aur-build
+          su builder -c "cd /tmp/aur-build && makepkg --printsrcinfo > /tmp/SRCINFO"
+          cp /tmp/SRCINFO /tmp/aur-pkg/.SRCINFO
+
+      - name: Push to AUR
+        run: |
+          cd /tmp/aur-pkg
+          git add PKGBUILD .SRCINFO
+          [ -f howdy-gesture-tfg.install ] && git add howdy-gesture-tfg.install || true
+          git diff --staged --quiet && echo "Nothing to commit" && exit 0
+          git commit -m "Update to ${{ github.sha }}"
+          git push
