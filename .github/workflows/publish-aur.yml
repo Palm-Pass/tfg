@@ -23,7 +23,7 @@ jobs:
           AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
         run: |
           mkdir -p /root/.ssh
-          printf '%s' "$AUR_SSH_KEY" > /root/.ssh/aur_key
+          echo "$AUR_SSH_KEY" > /root/.ssh/aur_key
           chmod 600 /root/.ssh/aur_key
           ssh-keyscan -t rsa,ecdsa,ed25519 aur.archlinux.org >> /root/.ssh/known_hosts
           printf 'Host aur.archlinux.org\n  IdentityFile /root/.ssh/aur_key\n  User aur\n' > /root/.ssh/config
