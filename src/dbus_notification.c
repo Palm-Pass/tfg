@@ -19,7 +19,7 @@ void send_notification(const char* body_msg) {
     conn = dbus_bus_get(DBUS_BUS_SESSION, &err);
     
     if (dbus_error_is_set(&err)) {
-        fprintf(stderr, "Error de Bus: %s\n", err.message);
+        fprintf(stderr, "Bus Error: %s\n", err.message);
         dbus_error_free(&err);
         return;
     }
@@ -47,10 +47,10 @@ void send_notification(const char* body_msg) {
     DBusMessage* reply = dbus_connection_send_with_reply_and_block(conn, msg, 1000, &err);
 
     if (dbus_error_is_set(&err)) {
-        fprintf(stderr, "Error al enviar: %s\n", err.message);
+        fprintf(stderr, "Send Error: %s\n", err.message);
         dbus_error_free(&err);
     } else if (reply) {
-        printf("Notificación aceptada por el bus.\n");
+        printf("Notification accepted by the bus.\n");
         dbus_message_unref(reply);
     }
 

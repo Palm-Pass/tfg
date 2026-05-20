@@ -83,9 +83,6 @@ static int get_gesture_hint_message(char *buffer, size_t buffer_size) {
     return -1;
 }
 
-/*
-Custom PAM module for gesture-based authentication using a Python script.
- */
 PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv) {
     const char *user;
     int status;
